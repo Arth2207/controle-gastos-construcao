@@ -55,3 +55,42 @@ export interface DashboardStats {
   economiasPorMes: Array<{ mes: string; valor: number }>;
   metas: Meta[];
 }
+
+export type EtapaCasa = 'fundacao' | 'paredes' | 'laje' | 'portas' | 'janelas' | 'decoracao';
+
+export interface ModeloEtapa {
+  id?: number;
+  modelo_id?: number;
+  etapa: EtapaCasa;
+  concluida: number;
+  dados_json?: string;
+  dados?: any;
+  created_at?: string;
+}
+
+export interface Comodo {
+  nome: string;
+  x: number;
+  y: number;
+  largura: number;
+  comprimento: number;
+}
+
+export interface ModeloCasa {
+  id?: number;
+  nome: string;
+  largura: number;
+  comprimento: number;
+  altura_pe_direito: number;
+  num_andares: number;
+  num_comodos: number;
+  espessura_parede: number;
+  dados_json?: string;
+  dados?: {
+    comodos?: Comodo[];
+    portas?: Array<{ x: number; y: number; largura: number; altura: number; parede: 'frente' | 'fundo' | 'esquerda' | 'direita' }>;
+    janelas?: Array<{ x: number; y: number; largura: number; altura: number; parede: 'frente' | 'fundo' | 'esquerda' | 'direita' }>;
+  };
+  etapas?: ModeloEtapa[];
+  created_at?: string;
+}

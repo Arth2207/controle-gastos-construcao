@@ -1,4 +1,4 @@
-import { Gasto, Categoria, DashboardStats, Economia, Meta } from './types';
+import { Gasto, Categoria, DashboardStats, Economia, Meta, ModeloCasa, EtapaCasa } from './types';
 
 const API_BASE = '/api';
 
@@ -115,5 +115,42 @@ export const api = {
 
   deleteMeta: async (id: number): Promise<void> => {
     await fetch(`${API_BASE}/metas/${id}`, { method: 'DELETE' });
+  },
+
+  // Modelos de Casa
+  getModelos: async (): Promise<ModeloCasa[]> => {
+    const response = await fetch(`${API_BASE}/modelos`);
+    return response.json();
+  },
+
+  createModelo: async (modelo: Omit<ModeloCasa, 'id' | 'created_at' | 'etapas' | 'dados_json'>): Promise<ModeloCasa> => {
+    const response = await fetch(`${API_BASE}/modelos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(modelo),
+    });
+    return response.json();
+  },
+
+  updateModelo: async (id: number, modelo: Partial<ModeloCasa>): Promise<ModeloCasa> => {
+    const response = await fetch(`${API_BASE}/modelos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(modelo),
+    });
+    return response.json();
+  },
+
+  deleteModelo: async (id: number): Promise<void> => {
+    await fetch(`${API_BASE}/modelos/${id}`, { method: 'DELETE' });
+  },
+
+  updateEtapa: async (modeloId: number, etapa: EtapaCasa, concluida: boolean, dados?: any): Promise<any> => {
+    const response = await fetch(`${API_BASE}/modelos/${modeloId}/etapas/${etapa}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ concluida, dados }),
+    });
+    return response.json();
   },
 };

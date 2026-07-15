@@ -285,4 +285,87 @@ router.delete('/metas/:id', (req, res) => {
   }
 });
 
+// Modelos de Casa
+router.get('/modelos', (req, res) => {
+  const modelos = db.prepare('SELECT * FROM modelos_casa ORDER BY created_at DESC').all();
+  for (const m of modelos) {
+    m.etapas = db.prepare('SELECT * FROM modelo_etapas WHERE modelo_id = ?').all(m.id);
+    if (m.dados_json) m.dados = JSON.parse(m.dados_json);
+  }
+  res.json(modelos);
+});
+
+router.post('/modelos', (req, res) => {
+  const { nome, largura, comprimento, altura_pe_direito, num_andares, num_comodos, espessura_parede, dados } = req.body;
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO modelos_casa (nome, largura, comprimento, altura_pe_direito, num_andares, num_comodos, espessura_parede, dados_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const result = stmt.run(nome, largura, comprimento, altura_pe_direito || 2.8, num_andares || 1, num_comodos || 0, espessura_parede || 0.15, dados ? JSON.stringify(dados) : null);
+    
+    const modeloId = result.lastInsertRowid;
+    const etapasPadrao = ['fundacao', 'paredes', 'laje', 'portas', 'janelas', 'decoracao'];
+    const insertEtapa = db.prepare('INSERT INTO modelo_etapas (modelo_id, etapa, concluida) VALUES (?, ?, 0)');
+    for (const etapa of etapasPadrao) {
+      insertEtapa.run(modeloId, etapa);
+    }
+
+    const modelo = db.prepare('SELECT * FROM modelos_casa WHERE id = ?').get(modeloId);
+    modelo.etapas = db.prepare('SELECT * FROM modelo_etapas WHERE modelo_id = ?').all(modeloId);
+    if (modelo.dados_json) modelo.dados = JSON.parse(modelo.dados_json);
+    res.status(201).json(modelo);
+  } catch (error) {
+    res.status(400).json({ error: 'Erro ao criar modelo: ' + error.message });
+  }
+});
+
+router.put('/modelos/:id', (req, res) => {
+  const { id } = req.params;
+  const { nome, largura, comprimento, altura_pe_direito, num_andares, num_comodos, espessura_parede, dados } = req.body;
+  try {
+    db.prepare(`
+      UPDATE modelos_casa SET nome=?, largura=?, comprimento=?, altura_pe_direito=?, num_andares=?, num_comodos=?, espessura_parede=?, dados_json=?
+      WHERE id=?
+    `).run(nome, largura, comprimento, altura_pe_direito, num_andares, num_comodos, espessura_parede, dados ? JSON.stringify(dados) : null, id);
+    const modelo = db.prepare('SELECT * FROM modelos_casa WHERE id = ?').get(id);
+    modelo.etapas = db.prepare('SELECT * FROM modelo_etapas WHERE modelo_id = ?').all(id);
+    if (modelo.dados_json) modelo.dados = JSON.parse(modelo.dados_json);
+    res.json(modelo);
+  } catch (error) {
+    res.status(400).json({ error: 'Erro ao atualizar modelo: ' + error.message });
+  }
+});
+
+router.delete('/modelos/:id', (req, res) => {
+  const { id } = req.params;
+  db.prepare('DELETE FROM modelo_etapas WHERE modelo_id = ?').run(id);
+  const result = db.prepare('DELETE FROM modelos_casa WHERE id = ?').run(id);
+  if (result.changes === 0) {
+    res.status(404).json({ error: 'Modelo nao encontrado' });
+  } else {
+    res.json({ message: 'Modelo deletado' });
+  }
+});
+
+// Etapas do modelo
+router.put('/modelos/:id/etapas/:etapa', (req, res) => {
+  const { id, etapa } = req.params;
+  const { concluida, dados } = req.body;
+  try {
+    if (dados) {
+      db.prepare('UPDATE modelo_etapas SET concluida=?, dados_json=? WHERE modelo_id=? AND etapa=?')
+        .run(concluida ? 1 : 0, JSON.stringify(dados), id, etapa);
+    } else {
+      db.prepare('UPDATE modelo_etapas SET concluida=? WHERE modelo_id=? AND etapa=?')
+        .run(concluida ? 1 : 0, id, etapa);
+    }
+    const etapaRow = db.prepare('SELECT * FROM modelo_etapas WHERE modelo_id=? AND etapa=?').get(id, etapa);
+    if (etapaRow.dados_json) etapaRow.dados = JSON.parse(etapaRow.dados_json);
+    res.json(etapaRow);
+  } catch (error) {
+    res.status(400).json({ error: 'Erro ao atualizar etapa: ' + error.message });
+  }
+});
+
 module.exports = router;

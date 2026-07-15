@@ -5,6 +5,7 @@ import { GastoList } from './components/GastoList';
 import { GastoForm } from './components/GastoForm';
 import { Categorias } from './components/Categorias';
 import { Economias } from './components/Economias';
+import { ModeloCasaPage } from './components/ModeloCasa';
 import { Gasto } from './types';
 import { CheckCircle2, X } from 'lucide-react';
 
@@ -60,6 +61,8 @@ export default function App() {
         return <GastoList onEdit={handleEdit} onNew={handleNew} refreshKey={refreshKey} />;
       case 'economias':
         return <Economias refreshKey={refreshKey} />;
+      case 'modelo':
+        return <ModeloCasaPage />;
       case 'categorias':
         return <Categorias />;
       default:

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { LayoutDashboard, List, Tags, Home, HardHat, Menu, X, PiggyBank } from 'lucide-react';
+import { LayoutDashboard, List, Tags, Home, HardHat, Menu, X, PiggyBank, Box } from 'lucide-react';
 
-export type Page = 'dashboard' | 'gastos' | 'categorias' | 'economias';
+export type Page = 'dashboard' | 'gastos' | 'categorias' | 'economias' | 'modelo';
 
 interface LayoutProps {
   currentPage: Page;
@@ -16,6 +16,7 @@ export function Layout({ currentPage, onNavigate, children }: LayoutProps) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Visao geral' },
     { id: 'gastos', label: 'Gastos', icon: List, description: 'Listagem' },
     { id: 'economias', label: 'Economias', icon: PiggyBank, description: 'Financas e metas' },
+    { id: 'modelo', label: 'Modelo 3D', icon: Box, description: 'Modelo da casa' },
     { id: 'categorias', label: 'Categorias', icon: Tags, description: 'Organizacao' },
   ];
 

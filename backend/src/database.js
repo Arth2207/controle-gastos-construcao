@@ -62,6 +62,29 @@ db.exec(`
     data_limite DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS modelos_casa (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    largura REAL NOT NULL,
+    comprimento REAL NOT NULL,
+    altura_pe_direito REAL DEFAULT 2.8,
+    num_andares INTEGER DEFAULT 1,
+    num_comodos INTEGER DEFAULT 0,
+    espessura_parede REAL DEFAULT 0.15,
+    dados_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS modelo_etapas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    modelo_id INTEGER NOT NULL,
+    etapa TEXT NOT NULL CHECK(etapa IN ('fundacao', 'paredes', 'laje', 'portas', 'janelas', 'decoracao')),
+    concluida INTEGER DEFAULT 0,
+    dados_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (modelo_id) REFERENCES modelos_casa(id) ON DELETE CASCADE
+  );
 `);
 
 // Inserir categorias padrão se não existirem
