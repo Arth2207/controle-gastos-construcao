@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { ModeloCasa, ModeloEtapa, EtapaCasa, Comodo } from '../types';
+import { ModeloCasa, EtapaCasa, Comodo } from '../types';
 import { api } from '../api';
-import { formatCurrency } from '../lib/utils';
 import {
   Home, Plus, Trash2, Box, Layers, DoorOpen, Frame, Palette,
   Save, X, Eye, EyeOff, CheckCircle2, Circle, Ruler, Building2,
-  ChevronRight, RotateCcw, Maximize,
+  RotateCcw,
 } from 'lucide-react';
 
 const ETAPAS_INFO: Record<EtapaCasa, { label: string; icon: any; color: string; desc: string }> = {
@@ -140,9 +139,6 @@ function use3DViewer(
     const H = modelo.altura_pe_direito;
     const T = modelo.espessura_parede;
     const floors = modelo.num_andares;
-    const totalH = H * floors;
-
-    const centerOffset = (axis: number) => axis / 2 - axis / 2;
 
     if (visibleEtapas.fundacao) {
       const fundMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.9 });
@@ -331,7 +327,6 @@ function use3DViewer(
         group.add(win);
 
         const frGeoH = new THREE.BoxGeometry(janela.largura + 0.08, 0.06, T + 0.1);
-        const frGeoV = new THREE.BoxGeometry(0.06, janela.altura, T + 0.1);
         const frTop = new THREE.Mesh(frGeoH, winFrameMat);
         frTop.position.copy(win.position);
         frTop.position.y += janela.altura / 2 + 0.03;
